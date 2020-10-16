@@ -89,6 +89,8 @@ class Raycaster(object):
     def render(self):
         halfWidth = int(self.width / 2)
         halfHeight = int(self.height / 2)
+        #Half width for 2d View, halfwidth for 3D view
+        #We first draw our map
         for x in range(0, halfWidth, self.blocksize):
             for y in range(0, self.height, self.blocksize):
                 i = int(x/self.blocksize)
