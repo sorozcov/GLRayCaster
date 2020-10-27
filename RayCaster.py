@@ -157,93 +157,179 @@ class Raycaster(object):
 pygame.init()
 screenWidth=1000
 screenHeight=500
-screen = pygame.display.set_mode((screenWidth,screenHeight),pygame.DOUBLEBUF | pygame.HWACCEL ) #, pygame.FULLSCREEN)
-pygame.display.set_caption('Show Text')
-bg = pygame.image.load("bg.png")
-screen.fill([255, 255, 255])
-rectangle=bg.get_rect()
-screen.blit(bg,((screen.get_width()-bg.get_width())/2,0))
-
-font = pygame.font.SysFont("Arial", 40)
-
-title = str(("Title"))
-title = font.render(title, 1, pygame.Color("white"))
-titleRec = title.get_rect()  
-  
-# set the center of the rectangular object. 
-titleRec.center = (screen.get_width() // 2, screen.get_height() // 2) 
+#Main Menu Screen
+def mainMenu():
+    screen = pygame.display.set_mode((screenWidth,screenHeight),pygame.DOUBLEBUF | pygame.HWACCEL ) #, pygame.FULLSCREEN)
+    pygame.display.set_caption('Main Menu')
     
-screen.blit(title, titleRec)
-# screen.set_alpha(None)
+    #Background image
+    bg = pygame.image.load("bgg.png")
+    screen.fill([255, 255, 255])
+    rectangle=bg.get_rect()
+    bg=pygame.transform.scale(bg, (screen.get_width(), screen.get_height()))
+    screen.blit(bg,((screen.get_width()-bg.get_width())/2,0))
 
-#Used to calculate FPS
-# clock = pygame.time.Clock()
-# font = pygame.font.SysFont("Arial", 20)
-# def updateFPS():
-#     fps = str(int(clock.get_fps()))
-#     fps = font.render(fps, 1, pygame.Color("white"))
-#     return fps
+    #Title of Screen
+    font = pygame.font.SysFont("Arial", 40)
+    title = str((" "*3+"Ray Caster Graffitti"+" "*3))
+    title = font.render(title, 1, pygame.Color("black"))
+    titleRec = title.get_rect()
+    titleRec.center = (screen.get_width() // 2, screen.get_height() // 6) 
+    screen.fill(pygame.Color("white"), titleRec)
+    screen.blit(title, titleRec)
 
-# rayCaster = Raycaster(screen)
-# rayCaster.setBlockColor( (128,0,0) )
-# rayCaster.loadMap('ownmap.txt')
+    #Button Start
+    buttonStart = str((" "*3+"Start"+" "*3))
+    buttonStart = font.render(buttonStart, 1, pygame.Color("black"))
+    buttonStartRec = buttonStart.get_rect()
+    buttonStartRec.center = (screen.get_width() // 2, screen.get_height()*2.5 // 6) 
+    screen.fill(pygame.Color("white"), buttonStartRec)
+    screen.blit(buttonStart, buttonStartRec)
 
-isRunning = True
+    #Button Quit
+    buttonQuit = str((" "*3+"Quit"+" "*3))
+    buttonQuit = font.render(buttonQuit, 1, pygame.Color("black"))
+    buttonQuitRec = buttonQuit.get_rect()
+    buttonQuitRec.center = (screen.get_width() // 2, screen.get_height()*3.5 // 6) 
+    screen.fill(pygame.Color("white"), buttonQuitRec)
+    screen.blit(buttonQuit, buttonQuitRec)
 
-while isRunning:
 
-    for ev in pygame.event.get():
-        if ev.type == pygame.QUIT:
-            isRunning = False
 
-        # playerXpos = rayCaster.player['x']
-        # playerYpos = rayCaster.player['y']
-        if ev.type == pygame.KEYDOWN:
-            if ev.key == pygame.K_ESCAPE:
+
+    isRunning = True
+    closeExit=False
+    while isRunning:
+        for ev in pygame.event.get():
+            if ev.type == pygame.QUIT:
                 isRunning = False
-            elif ev.key == pygame.K_w:
-                screen.fill(BACKGROUND)
-    #             playerXpos += cos(rayCaster.player['angle'] * pi / 180) * rayCaster.stepSize
-    #             playerYpos += sin(rayCaster.player['angle'] * pi / 180) * rayCaster.stepSize
-    #         elif ev.key == pygame.K_s:
-    #             playerXpos -= cos(rayCaster.player['angle'] * pi / 180) * rayCaster.stepSize
-    #             playerYpos -= sin(rayCaster.player['angle'] * pi / 180) * rayCaster.stepSize
-    #         elif ev.key == pygame.K_a:
-    #             playerXpos -= cos((rayCaster.player['angle'] + 90) * pi / 180) * rayCaster.stepSize
-    #             playerYpos -= sin((rayCaster.player['angle'] + 90) * pi / 180) * rayCaster.stepSize
-    #         elif ev.key == pygame.K_d:
-    #             playerXpos += cos((rayCaster.player['angle'] + 90) * pi / 180) * rayCaster.stepSize
-    #             playerYpos += sin((rayCaster.player['angle'] + 90) * pi / 180) * rayCaster.stepSize
-    #         elif ev.key == pygame.K_q:
-    #             rayCaster.player['angle'] -= 5
-    #         elif ev.key == pygame.K_e:
-    #             rayCaster.player['angle'] += 5
+                closeExit = True
+            if ev.type == pygame.KEYDOWN:
+                if ev.key == pygame.K_ESCAPE:
+                    isRunning = False
+                    closeExit = True
+            #Check for mouse clicks
+            elif ev.type == pygame.MOUSEBUTTONDOWN: 
+                mouse = pygame.mouse.get_pos()
+                
+                #Button Quit
+                if buttonQuitRec.collidepoint(mouse): 
+                    isRunning = False 
+                    closeExit=True
+                elif buttonStartRec.collidepoint(mouse): 
+                    isRunning = False 
+                    closeExit=False
+            #Check for hovers on buttons
+            mouse = pygame.mouse.get_pos()
+            if buttonQuitRec.collidepoint(mouse): 
+                buttonQuit = str((" "*3+"Quit"+" "*3))
+                buttonQuit = font.render(buttonQuit, 1, pygame.Color("WHITE"))
+                buttonQuitRec = buttonQuit.get_rect()
+                buttonQuitRec.center = (screen.get_width() // 2, screen.get_height()*3.5 // 6) 
+                screen.fill(pygame.Color("gray"), buttonQuitRec)
+                screen.blit(buttonQuit, buttonQuitRec)
+            else:
+                buttonQuit = str((" "*3+"Quit"+" "*3))
+                buttonQuit = font.render(buttonQuit, 1, pygame.Color("black"))
+                buttonQuitRec = buttonQuit.get_rect()
+                buttonQuitRec.center = (screen.get_width() // 2, screen.get_height()*3.5 // 6) 
+                screen.fill(pygame.Color("white"), buttonQuitRec)
+                screen.blit(buttonQuit, buttonQuitRec)
+            
+            if buttonStartRec.collidepoint(mouse): 
+                buttonStart = str((" "*3+"Start"+" "*3))
+                buttonStart = font.render(buttonStart, 1, pygame.Color("white"))
+                buttonStartRec = buttonStart.get_rect()
+                buttonStartRec.center = (screen.get_width() // 2, screen.get_height()*2.5 // 6) 
+                screen.fill(pygame.Color("gray"), buttonStartRec)
+                screen.blit(buttonStart, buttonStartRec)
+            else: 
+                buttonStart = str((" "*3+"Start"+" "*3))
+                buttonStart = font.render(buttonStart, 1, pygame.Color("black"))
+                buttonStartRec = buttonStart.get_rect()
+                buttonStartRec.center = (screen.get_width() // 2, screen.get_height()*2.5 // 6) 
+                screen.fill(pygame.Color("white"), buttonStartRec)
+                screen.blit(buttonStart, buttonStartRec)
+        pygame.display.update()
+    return closeExit
+closeExit=mainMenu()
 
-    #         i = int(playerXpos / rayCaster.blocksize)
-    #         j = int(playerYpos / rayCaster.blocksize)
+def rayCasterScreen():
+    pygame.display.set_caption('Ray Caster')
+    screen = pygame.display.set_mode((screenWidth,screenHeight),pygame.DOUBLEBUF | pygame.HWACCEL) #, pygame.FULLSCREEN)
+    screen.set_alpha(None)
 
-    #         if rayCaster.map[j][i] == ' ':
-    #             rayCaster.player['x'] = playerXpos
-    #             rayCaster.player['y'] = playerYpos
+    #Used to calculate FPS
+    clock = pygame.time.Clock()
+    font = pygame.font.SysFont("Arial", 20)
+    def updateFPS():
+        fps = str(int(clock.get_fps()))
+        fps = font.render(fps, 1, pygame.Color("white"))
+        return fps
 
-    # screen.fill(BACKGROUND)
-    
+    rayCaster = Raycaster(screen)
+    rayCaster.setBlockColor( (128,0,0) )
+    rayCaster.loadMap('ownmap.txt')
+
+    isRunning = True
+
+    while isRunning:
+
+        for ev in pygame.event.get():
+            if ev.type == pygame.QUIT:
+                isRunning = False
+
+            playerXpos = rayCaster.player['x']
+            playerYpos = rayCaster.player['y']
+            if ev.type == pygame.KEYDOWN:
+                if ev.key == pygame.K_ESCAPE:
+                    isRunning = False
+                elif ev.key == pygame.K_w:
+                    playerXpos += cos(rayCaster.player['angle'] * pi / 180) * rayCaster.stepSize
+                    playerYpos += sin(rayCaster.player['angle'] * pi / 180) * rayCaster.stepSize
+                elif ev.key == pygame.K_s:
+                    playerXpos -= cos(rayCaster.player['angle'] * pi / 180) * rayCaster.stepSize
+                    playerYpos -= sin(rayCaster.player['angle'] * pi / 180) * rayCaster.stepSize
+                elif ev.key == pygame.K_a:
+                    playerXpos -= cos((rayCaster.player['angle'] + 90) * pi / 180) * rayCaster.stepSize
+                    playerYpos -= sin((rayCaster.player['angle'] + 90) * pi / 180) * rayCaster.stepSize
+                elif ev.key == pygame.K_d:
+                    playerXpos += cos((rayCaster.player['angle'] + 90) * pi / 180) * rayCaster.stepSize
+                    playerYpos += sin((rayCaster.player['angle'] + 90) * pi / 180) * rayCaster.stepSize
+                elif ev.key == pygame.K_q:
+                    rayCaster.player['angle'] -= 5
+                elif ev.key == pygame.K_e:
+                    rayCaster.player['angle'] += 5
+
+                i = int(playerXpos / rayCaster.blocksize)
+                j = int(playerYpos / rayCaster.blocksize)
+
+                if rayCaster.map[j][i] == ' ':
+                    rayCaster.player['x'] = playerXpos
+                    rayCaster.player['y'] = playerYpos
+
+        screen.fill(BACKGROUND)
+        
 
 
-    #Ceilign
-    # screen.fill(pygame.Color("skyblue"), (int(rayCaster.width / 2), 0, int(rayCaster.width / 2),int(rayCaster.height / 2)))
-    
-    # #Floor
-    # screen.fill(pygame.Color("dimgray"), (int(rayCaster.width / 2), int(rayCaster.height / 2), int(rayCaster.width / 2),int(rayCaster.height / 2)))
+        #Ceilign
+        screen.fill(pygame.Color("skyblue"), (int(rayCaster.width / 2), 0, int(rayCaster.width / 2),int(rayCaster.height / 2)))
+        
+        #Floor
+        screen.fill(pygame.Color("dimgray"), (int(rayCaster.width / 2), int(rayCaster.height / 2), int(rayCaster.width / 2),int(rayCaster.height / 2)))
 
-    # #Render RayCaster
-    # rayCaster.render()
+        #Render RayCaster
+        rayCaster.render()
 
-    # # FPS
-    # screen.fill(pygame.Color("black"), (0,0,30,30))
-    # screen.blit(updateFPS(), (10,5))
-    # clock.tick(30)  
+        # FPS
+        screen.fill(pygame.Color("black"), (0,0,30,30))
+        screen.blit(updateFPS(), (10,5))
+        clock.tick(30)  
 
-    pygame.display.update()
+        pygame.display.update()
+
+#Start of our Real Raytracer
+if(not closeExit):
+    rayCasterScreen()
 
 pygame.quit()
