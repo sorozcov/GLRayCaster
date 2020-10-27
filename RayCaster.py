@@ -284,7 +284,6 @@ def mainMenu():
                 screen.blit(buttonStart, buttonStartRec)
         pygame.display.update()
     return closeExit
-closeExit=mainMenu()
 
 def rayCasterScreen():
     pygame.display.set_caption('Ray Caster')
@@ -360,6 +359,7 @@ def rayCasterScreen():
 
         pygame.display.update()
 
+closeExit=mainMenu()
 #Start of our Real Raytracer
 if(not closeExit):
     rayCasterScreen()
