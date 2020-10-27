@@ -199,6 +199,7 @@ def mainMenu():
 
     isRunning = True
     closeExit=False
+    buttonPressed=None
     while isRunning:
         for ev in pygame.event.get():
             if ev.type == pygame.QUIT:
@@ -208,6 +209,31 @@ def mainMenu():
                 if ev.key == pygame.K_ESCAPE:
                     isRunning = False
                     closeExit = True
+                elif ev.key == pygame.K_DOWN:
+                    if(buttonPressed==buttonStartRec):
+                        bp=buttonQuitRec
+                    elif(buttonPressed==None):
+                        bp=buttonStartRec
+                    elif(buttonPressed==buttonQuitRec):
+                        bp=None
+                    buttonPressed=bp
+                elif ev.key == pygame.K_UP:
+                    if(buttonPressed==buttonStartRec):
+                        bp=None
+                    elif(buttonPressed==buttonQuitRec):
+                        bp=buttonStartRec
+                    elif(buttonPressed==None):
+                        bp=buttonQuitRec
+                    buttonPressed=bp
+                elif ev.key == pygame.K_RETURN:
+                    if buttonPressed==buttonQuitRec: 
+                        isRunning = False 
+                        closeExit=True
+                    elif buttonPressed==buttonStartRec: 
+                        isRunning = False 
+                        closeExit=False
+                    
+
             #Check for mouse clicks
             elif ev.type == pygame.MOUSEBUTTONDOWN: 
                 mouse = pygame.mouse.get_pos()
@@ -219,9 +245,12 @@ def mainMenu():
                 elif buttonStartRec.collidepoint(mouse): 
                     isRunning = False 
                     closeExit=False
+                else:
+                    buttonPressed=None
             #Check for hovers on buttons
             mouse = pygame.mouse.get_pos()
-            if buttonQuitRec.collidepoint(mouse): 
+            if buttonQuitRec.collidepoint(mouse) or buttonPressed==buttonQuitRec: 
+                buttonPressed=buttonQuitRec
                 buttonQuit = str((" "*3+"Quit"+" "*3))
                 buttonQuit = font.render(buttonQuit, 1, pygame.Color("WHITE"))
                 buttonQuitRec = buttonQuit.get_rect()
@@ -229,6 +258,7 @@ def mainMenu():
                 screen.fill(pygame.Color("gray"), buttonQuitRec)
                 screen.blit(buttonQuit, buttonQuitRec)
             else:
+                
                 buttonQuit = str((" "*3+"Quit"+" "*3))
                 buttonQuit = font.render(buttonQuit, 1, pygame.Color("black"))
                 buttonQuitRec = buttonQuit.get_rect()
@@ -236,7 +266,8 @@ def mainMenu():
                 screen.fill(pygame.Color("white"), buttonQuitRec)
                 screen.blit(buttonQuit, buttonQuitRec)
             
-            if buttonStartRec.collidepoint(mouse): 
+            if buttonStartRec.collidepoint(mouse) or buttonPressed==buttonStartRec: 
+                buttonPressed=buttonStartRec
                 buttonStart = str((" "*3+"Start"+" "*3))
                 buttonStart = font.render(buttonStart, 1, pygame.Color("white"))
                 buttonStartRec = buttonStart.get_rect()
@@ -244,6 +275,7 @@ def mainMenu():
                 screen.fill(pygame.Color("gray"), buttonStartRec)
                 screen.blit(buttonStart, buttonStartRec)
             else: 
+                
                 buttonStart = str((" "*3+"Start"+" "*3))
                 buttonStart = font.render(buttonStart, 1, pygame.Color("black"))
                 buttonStartRec = buttonStart.get_rect()
