@@ -7,7 +7,7 @@
 
 #This an implentation of a RayCaster using PyGame
 import pygame
-from math import cos, sin, pi
+from math import cos, sin, pi,atan2
 
 
 
@@ -15,6 +15,7 @@ from math import cos, sin, pi
 BLACK = (0,0,0)
 WHITE = (255,255,255)
 BACKGROUND = (64,64,64)
+SPRITE_BACKGROUND = (152, 0, 136, 255)
 # Colors used for RayCasting colors of maps
 colors = {
     '1' : (106, 59, 3),
@@ -33,6 +34,31 @@ textures = {
     '5' : pygame.image.load('wall5.png')
 }
 
+enemies = [{"x": 130,
+            "y": 300,
+            "texture" : pygame.image.load('enemy1.png')},
+
+           {"x": 180,
+            "y": 250,
+            "texture" : pygame.image.load('enemy2.png')},
+
+           {"x": 130,
+            "y": 100,
+            "texture" : pygame.image.load('enemy3.png')} ,
+
+           {"x": 400,
+            "y": 75,
+            "texture" : pygame.image.load('enemy4.png')}  ,
+
+           {"x": 375,
+            "y": 425,
+            "texture" : pygame.image.load('enemy5.png')}  ,
+
+           {"x": 100,
+            "y": 420,
+            "texture" : pygame.image.load('enemy6.png')}     
+    ]
+
 
 #Class Ray Caster
 class Raycaster(object):
@@ -49,6 +75,8 @@ class Raycaster(object):
         #We set our block color
         self.setBlockColor(WHITE)
 
+        #Zbuffer
+        self.zbuffer = [-float('inf') for z in range(int(self.width / 2))]
         #We create our player that has information of its position, angle of view and fov field of view
         self.player = {
             "x" : 120,
@@ -81,6 +109,40 @@ class Raycaster(object):
     def drawPlayerIcon(self,color=BLACK):
         rectangle = (self.player['x'] - 2, self.player['y'] - 2, 6, 6)
         self.screen.fill(color, rectangle)
+
+
+    #Function to draw a sprite
+    def drawSprite(self, sprite, size):
+        # Pitagoras
+        spriteDist = ((self.player['x'] - sprite['x'])**2 + (self.player['y'] - sprite['y'])**2) ** 0.5
+        
+        # Angulo entre el personaje y el sprite, arco tangente 2
+        spriteAngle = atan2(sprite['y'] - self.player['y'], sprite['x'] - self.player['x'])
+
+        aspectRatio = sprite["texture"].get_width() / sprite["texture"].get_height()
+        spriteHeight = (self.height / spriteDist) * size
+        spriteWidth = spriteHeight * aspectRatio
+
+        #Convertir a radianes
+        angleRads = self.player['angle'] * pi / 180
+        fovRads = self.player['fov'] * pi / 180
+
+        #Buscamos el punto inicial para dibujar el sprite
+        startX = (self.width * 3 / 4) + (spriteAngle - angleRads)*(self.width/2) / fovRads - (spriteWidth/2)
+        startY = (self.height / 2) - (spriteHeight / 2)
+        startX = int(startX)
+        startY = int(startY)
+
+        for x in range(startX, int(startX + spriteWidth)):
+            for y in range(startY, int(startY + spriteHeight)):
+                if (self.width / 2) < x < self.width:
+                    if self.zbuffer[ x - int(self.width/2)] >= spriteDist:
+                        tx = int( (x - startX) * sprite["texture"].get_width() / spriteWidth )
+                        ty = int( (y - startY) * sprite["texture"].get_height() / spriteHeight )
+                        texColor = sprite["texture"].get_at((tx, ty))
+                        if texColor[3] > 128 and texColor != SPRITE_BACKGROUND:
+                            self.screen.set_at((x,y), texColor)
+                            self.zbuffer[ x - int(self.width/2)] = spriteDist
 
     #Function for casting a ray
     def castRay(self, a):
@@ -128,6 +190,7 @@ class Raycaster(object):
         for i in range(halfWidth):
             angle = self.player['angle'] - self.player['fov'] / 2 + self.player['fov'] * i / halfWidth
             dist, textureType,tx = self.castRay(angle)
+            self.zbuffer[i] = dist
             x = halfWidth + i
             
             # perceivedHeight = screenHeight / (distance * cos( rayAngle - viewAngle) * wallHeight
@@ -147,11 +210,18 @@ class Raycaster(object):
                 print("Error on wall")
 
 
+        #Render enemies
+        for enemy in enemies:
+            self.screen.fill(pygame.Color("red"), (enemy['x'], enemy['y'], 4,4))
+            self.drawSprite(enemy, 30)
 
+        #Render middle lines for division
         for i in range(self.height):
             self.screen.set_at( (halfWidth, i), BLACK)
             self.screen.set_at( (halfWidth+1, i), BLACK)
             self.screen.set_at( (halfWidth-1, i), BLACK)
+
+
 global returnMainScreen
 returnMainScreen=False
 global closeExit
@@ -501,7 +571,12 @@ def rayCasterScreen():
                     rayCaster.player['x'] = playerXpos
                     rayCaster.player['y'] = playerYpos
 
+        #Floor on our mini map
+        floor = pygame.image.load("floor4.png")
+        rectangle=floor.get_rect()
+        floor=pygame.transform.scale(floor, (screen.get_width(), screen.get_height()))
         screen.fill(BACKGROUND)
+        screen.blit(floor, (int(0), int(0), int(rayCaster.width / 2),int(rayCaster.height)))
         
 
 
@@ -509,7 +584,13 @@ def rayCasterScreen():
         screen.fill(pygame.Color("skyblue"), (int(rayCaster.width / 2), 0, int(rayCaster.width / 2),int(rayCaster.height / 2)))
         
         #Floor
-        screen.fill(pygame.Color("dimgray"), (int(rayCaster.width / 2), int(rayCaster.height / 2), int(rayCaster.width / 2),int(rayCaster.height / 2)))
+        #screen.fill(pygame.Color("dimgray"), (int(rayCaster.width / 2), int(rayCaster.height / 2), int(rayCaster.width / 2),int(rayCaster.height / 2)))
+        
+        #Floor image
+        floor = pygame.image.load("floor4.png")
+        rectangle=floor.get_rect()
+        floor=pygame.transform.scale(floor, (screen.get_width(), screen.get_height()))
+        screen.blit(floor, (int(rayCaster.width / 2), int(rayCaster.height / 2), int(rayCaster.width / 2),int(rayCaster.height / 2)))
 
         #Render RayCaster
         rayCaster.render()
