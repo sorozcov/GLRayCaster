@@ -26,11 +26,11 @@ colors = {
 
 #Loading textures
 textures = {
-    '1' : pygame.image.load('wall6.png'),
-    '2' : pygame.image.load('wall7.png'),
-    '3' : pygame.image.load('wall8.png'),
-    '4' : pygame.image.load('wall9.png'),
-    '5' : pygame.image.load('wall10.png')
+    '1' : pygame.image.load('wall1.png'),
+    '2' : pygame.image.load('wall2.png'),
+    '3' : pygame.image.load('wall3.png'),
+    '4' : pygame.image.load('wall11.png'),
+    '5' : pygame.image.load('wall5.png')
 }
 
 
@@ -152,13 +152,18 @@ class Raycaster(object):
             self.screen.set_at( (halfWidth, i), BLACK)
             self.screen.set_at( (halfWidth+1, i), BLACK)
             self.screen.set_at( (halfWidth-1, i), BLACK)
-
+global returnMainScreen
+returnMainScreen=False
+global closeExit
+closeExit=False
 #Init Pygame
 pygame.init()
 screenWidth=1000
 screenHeight=500
 #Main Menu Screen
 def mainMenu():
+    pygame.mixer.music.load("musicRockstar.mp3")
+    pygame.mixer.music.play(-1)
     screen = pygame.display.set_mode((screenWidth,screenHeight),pygame.DOUBLEBUF | pygame.HWACCEL ) #, pygame.FULLSCREEN)
     pygame.display.set_caption('Main Menu')
     
@@ -210,12 +215,13 @@ def mainMenu():
                     isRunning = False
                     closeExit = True
                 elif ev.key == pygame.K_DOWN:
-                    if(buttonPressed==buttonStartRec):
+                    if(buttonPressed==buttonQuitRec):
+                        bp=None
+                    elif(buttonPressed==buttonStartRec):
                         bp=buttonQuitRec
                     elif(buttonPressed==None):
                         bp=buttonStartRec
-                    elif(buttonPressed==buttonQuitRec):
-                        bp=None
+                    
                     buttonPressed=bp
                 elif ev.key == pygame.K_UP:
                     if(buttonPressed==buttonStartRec):
@@ -283,9 +289,147 @@ def mainMenu():
                 screen.fill(pygame.Color("white"), buttonStartRec)
                 screen.blit(buttonStart, buttonStartRec)
         pygame.display.update()
-    return closeExit
+    pygame.mixer.music.stop()
+    #Start of our Real Raytracer
+    if(not closeExit):
+        closeExit=rayCasterScreen()
+        if(closeExit):
+            mainMenu()
+
+#Pause Menu Screen
+def pauseMenu():
+    screen = pygame.display.set_mode((screenWidth,screenHeight),pygame.DOUBLEBUF | pygame.HWACCEL ) #, pygame.FULLSCREEN)
+    pygame.display.set_caption('Pause Menu')
+    
+    #Background image
+    bg = pygame.image.load("bgg.png")
+    screen.fill([255, 255, 255])
+    rectangle=bg.get_rect()
+    bg=pygame.transform.scale(bg, (screen.get_width(), screen.get_height()))
+    screen.blit(bg,((screen.get_width()-bg.get_width())/2,0))
+
+    #Title of Screen
+    font = pygame.font.SysFont("Arial", 40)
+    title = str((" "*3+"Ray Caster Graffitti"+" "*3))
+    title = font.render(title, 1, pygame.Color("black"))
+    titleRec = title.get_rect()
+    titleRec.center = (screen.get_width() // 2, screen.get_height() // 6) 
+    screen.fill(pygame.Color("white"), titleRec)
+    screen.blit(title, titleRec)
+
+    #Button Start
+    buttonContinue = str((" "*3+"Start"+" "*3))
+    buttonContinue = font.render(buttonContinue, 1, pygame.Color("black"))
+    buttonContinueRec = buttonContinue.get_rect()
+    buttonContinueRec.center = (screen.get_width() // 2, screen.get_height()*2.5 // 6) 
+    screen.fill(pygame.Color("white"), buttonContinueRec)
+    screen.blit(buttonContinue, buttonContinueRec)
+
+    #Button Quit
+    buttonQuit = str((" "*3+"Quit"+" "*3))
+    buttonQuit = font.render(buttonQuit, 1, pygame.Color("black"))
+    buttonQuitRec = buttonQuit.get_rect()
+    buttonQuitRec.center = (screen.get_width() // 2, screen.get_height()*3.5 // 6) 
+    screen.fill(pygame.Color("white"), buttonQuitRec)
+    screen.blit(buttonQuit, buttonQuitRec)
+
+
+
+
+    isRunning = True
+    closeExitPause=False
+    buttonPressed=None
+    closeExit=False
+    while isRunning:
+        for ev in pygame.event.get():
+            if ev.type == pygame.QUIT:
+                isRunning = False
+                closeExitPause = False
+                closeExit=True
+            if ev.type == pygame.KEYDOWN:
+                if ev.key == pygame.K_ESCAPE:
+                    isRunning = False
+                    closeExitPause = False
+                elif ev.key == pygame.K_DOWN:
+                    if(buttonPressed==buttonQuitRec):
+                        bp=None
+                    elif(buttonPressed==buttonContinueRec):
+                        bp=buttonQuitRec
+                    elif(buttonPressed==None):
+                        bp=buttonContinueRec
+                    
+                    buttonPressed=bp
+                elif ev.key == pygame.K_UP:
+                    if(buttonPressed==buttonContinueRec):
+                        bp=None
+                    elif(buttonPressed==buttonQuitRec):
+                        bp=buttonContinueRec
+                    elif(buttonPressed==None):
+                        bp=buttonQuitRec
+                    buttonPressed=bp
+                elif ev.key == pygame.K_RETURN:
+                    if buttonPressed==buttonQuitRec: 
+                        isRunning = False 
+                        closeExitPause=True
+                    elif buttonPressed==buttonContinueRec: 
+                        isRunning = False 
+                        closeExitPause=False
+                    
+
+            #Check for mouse clicks
+            elif ev.type == pygame.MOUSEBUTTONDOWN: 
+                mouse = pygame.mouse.get_pos()
+                
+                #Button Quit
+                if buttonQuitRec.collidepoint(mouse): 
+                    isRunning = False 
+                    closeExitPause=True
+                elif buttonContinueRec.collidepoint(mouse): 
+                    isRunning = False 
+                    closeExitPause=False
+                else:
+                    buttonPressed=None
+            #Check for hovers on buttons
+            mouse = pygame.mouse.get_pos()
+            if buttonQuitRec.collidepoint(mouse) or buttonPressed==buttonQuitRec: 
+                buttonPressed=buttonQuitRec
+                buttonQuit = str((" "*3+"Main Menu"+" "*3))
+                buttonQuit = font.render(buttonQuit, 1, pygame.Color("WHITE"))
+                buttonQuitRec = buttonQuit.get_rect()
+                buttonQuitRec.center = (screen.get_width() // 2, screen.get_height()*3.5 // 6) 
+                screen.fill(pygame.Color("gray"), buttonQuitRec)
+                screen.blit(buttonQuit, buttonQuitRec)
+            else:
+                
+                buttonQuit = str((" "*3+"Main Menu"+" "*3))
+                buttonQuit = font.render(buttonQuit, 1, pygame.Color("black"))
+                buttonQuitRec = buttonQuit.get_rect()
+                buttonQuitRec.center = (screen.get_width() // 2, screen.get_height()*3.5 // 6) 
+                screen.fill(pygame.Color("white"), buttonQuitRec)
+                screen.blit(buttonQuit, buttonQuitRec)
+            
+            if buttonContinueRec.collidepoint(mouse) or buttonPressed==buttonContinueRec: 
+                buttonPressed=buttonContinueRec
+                buttonContinue = str((" "*3+"Continue"+" "*3))
+                buttonContinue = font.render(buttonContinue, 1, pygame.Color("white"))
+                buttonContinueRec = buttonContinue.get_rect()
+                buttonContinueRec.center = (screen.get_width() // 2, screen.get_height()*2.5 // 6) 
+                screen.fill(pygame.Color("gray"), buttonContinueRec)
+                screen.blit(buttonContinue, buttonContinueRec)
+            else: 
+                
+                buttonContinue = str((" "*3+"Continue"+" "*3))
+                buttonContinue = font.render(buttonContinue, 1, pygame.Color("black"))
+                buttonContinueRec = buttonContinue.get_rect()
+                buttonContinueRec.center = (screen.get_width() // 2, screen.get_height()*2.5 // 6) 
+                screen.fill(pygame.Color("white"), buttonContinueRec)
+                screen.blit(buttonContinue, buttonContinueRec)
+        pygame.display.update()
+    return closeExitPause,closeExit
 
 def rayCasterScreen():
+    pygame.mixer.music.load("musicTown.mp3")
+    pygame.mixer.music.play(-1)
     pygame.display.set_caption('Ray Caster')
     screen = pygame.display.set_mode((screenWidth,screenHeight),pygame.DOUBLEBUF | pygame.HWACCEL) #, pygame.FULLSCREEN)
     screen.set_alpha(None)
@@ -301,20 +445,38 @@ def rayCasterScreen():
     rayCaster = Raycaster(screen)
     rayCaster.setBlockColor( (128,0,0) )
     rayCaster.loadMap('ownmap.txt')
-
+    closeExit=False
     isRunning = True
-
+    pause=False
+    global returnMainScreen
     while isRunning:
-
         for ev in pygame.event.get():
             if ev.type == pygame.QUIT:
                 isRunning = False
+                closeExit=True
 
             playerXpos = rayCaster.player['x']
             playerYpos = rayCaster.player['y']
             if ev.type == pygame.KEYDOWN:
                 if ev.key == pygame.K_ESCAPE:
-                    isRunning = False
+                    if(not pause):
+                        pause = True
+                        closeExitMenu,closeExit = pauseMenu()
+                        if(not closeExit):
+                            if(closeExitMenu):
+                                returnMainScreen=True
+                                isRunning=False
+                            else:
+                                pygame.display.set_caption('Ray Caster')
+                                screen = pygame.display.set_mode((screenWidth,screenHeight),pygame.DOUBLEBUF | pygame.HWACCEL) #, pygame.FULLSCREEN)
+                                screen.set_alpha(None)
+                        else:
+                            isRunning=False
+                    else:
+                        pause=False
+                        pygame.display.set_caption('Ray Caster')
+                        screen = pygame.display.set_mode((screenWidth,screenHeight),pygame.DOUBLEBUF | pygame.HWACCEL) #, pygame.FULLSCREEN)
+                        screen.set_alpha(None)
                 elif ev.key == pygame.K_w:
                     playerXpos += cos(rayCaster.player['angle'] * pi / 180) * rayCaster.stepSize
                     playerYpos += sin(rayCaster.player['angle'] * pi / 180) * rayCaster.stepSize
@@ -358,10 +520,18 @@ def rayCasterScreen():
         clock.tick(30)  
 
         pygame.display.update()
+    
+    pygame.mixer.music.stop()
+    if(closeExit):
+        return False
+    else:
+        if(returnMainScreen):
+            return True
+        else:
+            return False
+    
 
-closeExit=mainMenu()
-#Start of our Real Raytracer
-if(not closeExit):
-    rayCasterScreen()
+mainMenu()
+
 
 pygame.quit()
