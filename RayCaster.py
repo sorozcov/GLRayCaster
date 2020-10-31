@@ -113,22 +113,23 @@ class Raycaster(object):
 
     #Function to draw a sprite
     def drawSprite(self, sprite, size):
-        # Pitagoras
+        # pythagorean theorem to calculate sprite distance between player and sprite
         spriteDist = ((self.player['x'] - sprite['x'])**2 + (self.player['y'] - sprite['y'])**2) ** 0.5
         
-        # Angulo entre el personaje y el sprite, arco tangente 2
+        # calculate angule between sprite and player
         spriteAngle = atan2(sprite['y'] - self.player['y'], sprite['x'] - self.player['x'])
 
+        # calculate aspect ratio and with the size given 
         aspectRatio = sprite["texture"].get_width() / sprite["texture"].get_height()
         spriteHeight = (self.height / spriteDist) * size
         spriteWidth = spriteHeight * aspectRatio
 
-        #Convertir a radianes
-        angleRads = self.player['angle'] * pi / 180
-        fovRads = self.player['fov'] * pi / 180
+        # change angles to radians
+        angleRadians = self.player['angle'] * pi / 180
+        fovRadians = self.player['fov'] * pi / 180
 
-        #Buscamos el punto inicial para dibujar el sprite
-        startX = (self.width * 3 / 4) + (spriteAngle - angleRads)*(self.width/2) / fovRads - (spriteWidth/2)
+        #Check for start point to visualize sprite and then make a loop to end to draw sprite
+        startX = (self.width * 3 / 4) + (spriteAngle - angleRadians)*(self.width/2) / fovRadians - (spriteWidth/2)
         startY = (self.height / 2) - (spriteHeight / 2)
         startX = int(startX)
         startY = int(startY)
@@ -142,6 +143,7 @@ class Raycaster(object):
                         texColor = sprite["texture"].get_at((tx, ty))
                         if texColor[3] > 128 and texColor != SPRITE_BACKGROUND:
                             self.screen.set_at((x,y), texColor)
+                            #Z buffer to calculate if sprite is in front or behind
                             self.zbuffer[ x - int(self.width/2)] = spriteDist
 
     #Function for casting a ray
